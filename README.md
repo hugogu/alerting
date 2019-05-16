@@ -45,6 +45,12 @@ The format of the alerts produced should be:
 
 ### Build and Execution
 
+You probably need to run this to make `./gradlew` executable on Mac OS.
+
+```bash
+xattr -d com.apple.quarantine ./gradlew
+```
+
 To build the application:
 ```bash
 ./gradlew clean build
