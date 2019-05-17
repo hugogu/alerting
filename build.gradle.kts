@@ -16,6 +16,7 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(kotlin("reflect"))
+    implementation("org.apache.commons", "commons-collections4", "4.3")
     implementation("com.fasterxml.jackson.module", "jackson-module-kotlin", "2.9+")
     implementation("com.fasterxml.jackson.datatype", "jackson-datatype-jsr310", "2.9+")
 
