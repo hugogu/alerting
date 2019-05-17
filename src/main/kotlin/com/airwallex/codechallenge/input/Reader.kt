@@ -1,7 +1,6 @@
 package com.airwallex.codechallenge.input
 
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.airwallex.codechallenge.common.Marshalling
 import com.fasterxml.jackson.module.kotlin.readValue
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -9,8 +8,7 @@ import java.util.stream.Stream
 
 class Reader {
 
-    private val mapper = jacksonObjectMapper()
-        .registerModule(JavaTimeModule())
+    private val mapper = Marshalling.mapper
 
     fun read(filename: String): Stream<CurrencyConversionRate> =
         read(Files.lines(Paths.get(filename)))
