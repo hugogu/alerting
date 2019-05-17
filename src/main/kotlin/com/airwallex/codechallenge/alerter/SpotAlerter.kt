@@ -7,6 +7,9 @@ import com.airwallex.codechallenge.output.RateMoveAlert
  * An abstraction of all alert rules that deals with spot update.
  */
 interface SpotAlerter {
+    val doubleErrorTolerance: Double
+        get() = 0.0000001
+
     /**
      * Process a rate update and tell if there should an alert thrown out.
      *
@@ -14,4 +17,14 @@ interface SpotAlerter {
      * currency conversion rates are streamed at a constant rate of one per second
      */
     fun process(currencyRate: CurrencyConversionRate) : RateMoveAlert?
+
+    fun process(vararg rates: CurrencyConversionRate) : Iterable<RateMoveAlert> {
+        // TODO: use reduce ?
+        val result = ArrayList<RateMoveAlert>()
+        for (rate in rates) {
+            process(rate)?.let { result.add(it) }
+        }
+
+        return result
+    }
 }

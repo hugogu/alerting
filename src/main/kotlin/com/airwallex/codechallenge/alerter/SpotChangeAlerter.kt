@@ -9,15 +9,16 @@ import java.util.concurrent.ConcurrentMap
 /**
  * When the spot rate for a currency pair changes by more than 10% from the 5 minute average for that currency pair
  */
-class SpotChangeAlerter(private val durationInSeconds: Int = 300, private val moveTolerance: Double = 0.1) :
+class SpotChangeAlerter(private val averageDurationInSeconds: Int = 300, private val moveTolerance: Double = 0.1) :
     SpotAlerter {
     private var currencyPairAverages: ConcurrentMap<String, CurrencyPairHistoryRates> = ConcurrentHashMap()
 
     override fun process(currencyRate: CurrencyConversionRate): RateMoveAlert? {
         val rateHistory = currencyPairAverages.computeIfAbsent(currencyRate.currencyPair) { CurrencyPairHistoryRates() }
-        val averageRate = rateHistory.calculateAverageAfterAdding(currencyRate.rate)
-
-        return if (Math.abs(averageRate - currencyRate.rate) / averageRate > moveTolerance) {
+        val averageRate = rateHistory.average
+        rateHistory.addRate(currencyRate.rate)
+        val changeRate = Math.abs(averageRate - currencyRate.rate) / averageRate
+        return if (averageRate > 0 && changeRate - moveTolerance > doubleErrorTolerance) {
             RateMoveAlert.from(currencyRate)
         } else {
             null
@@ -28,10 +29,10 @@ class SpotChangeAlerter(private val durationInSeconds: Int = 300, private val mo
      * Maintains history rates and calculates average for a currency pair.
      */
     private inner class CurrencyPairHistoryRates {
-        private val historyRates: CircularFifoQueue<Double> = CircularFifoQueue(durationInSeconds)
-        private var average: Double = 0.0
+        private val historyRates: CircularFifoQueue<Double> = CircularFifoQueue(averageDurationInSeconds)
+        var average: Double = 0.0
 
-        internal fun calculateAverageAfterAdding(rate: Double): Double {
+        internal fun addRate(rate: Double) {
             average = when (historyRates.isAtFullCapacity) {
                 true -> {
                     (average * historyRates.size - historyRates.peek() + rate) / historyRates.size
@@ -41,8 +42,6 @@ class SpotChangeAlerter(private val durationInSeconds: Int = 300, private val mo
                 }
             }
             historyRates.add(rate)
-
-            return average
         }
     }
 }
