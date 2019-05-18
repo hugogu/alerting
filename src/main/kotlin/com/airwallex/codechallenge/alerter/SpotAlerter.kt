@@ -18,7 +18,7 @@ interface SpotAlerter {
      */
     fun process(currencyRate: CurrencyConversionRate) : RateMoveAlert?
 
-    fun process(vararg rates: CurrencyConversionRate) : Collection<RateMoveAlert> {
+    fun process(rates: Iterable<CurrencyConversionRate>) : Collection<RateMoveAlert> {
         // TODO: use reduce ?
         val result = ArrayList<RateMoveAlert>()
         for (rate in rates) {
@@ -26,5 +26,9 @@ interface SpotAlerter {
         }
 
         return result
+    }
+
+    fun process(vararg rates: CurrencyConversionRate) : Collection<RateMoveAlert> {
+        return process(rates.toList())
     }
 }

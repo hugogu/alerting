@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentMap
  */
 class SpotChangeAlerter(private val averageDurationInSeconds: Int = 300, private val moveTolerance: Double = 0.1) :
     SpotAlerter {
-    private var currencyPairAverages: ConcurrentMap<String, CurrencyPairHistoryRates> = ConcurrentHashMap()
+    private val currencyPairAverages: ConcurrentMap<String, CurrencyPairHistoryRates> = ConcurrentHashMap()
 
     override fun process(currencyRate: CurrencyConversionRate): RateMoveAlert? {
         val rateHistory = currencyPairAverages.computeIfAbsent(currencyRate.currencyPair) { CurrencyPairHistoryRates() }
@@ -30,7 +30,7 @@ class SpotChangeAlerter(private val averageDurationInSeconds: Int = 300, private
      */
     private inner class CurrencyPairHistoryRates {
         private val historyRates: CircularFifoQueue<Double> = CircularFifoQueue(averageDurationInSeconds)
-        var average: Double = 0.0
+        internal var average: Double = 0.0
 
         internal fun addRate(rate: Double) {
             average = when (historyRates.isAtFullCapacity) {
