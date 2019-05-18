@@ -18,6 +18,6 @@ internal class WriterTest {
     fun `output format test`() {
         val rate = CurrencyConversionRate(ofEpochMilli(1554933784023), "CNYAUD", 0.39281)
         assertThat(writer.write(RateMoveAlert.from(rate)))
-            .hasToString("{ \"timestamp\" : 1554933784.023000000, \"currencyPair\" : \"CNYAUD\", \"alert\" : \"spotChange\" }")
+            .hasToString("{ \"timestamp\" : 1554933784.023, \"currencyPair\" : \"CNYAUD\", \"alert\" : \"spotChange\" }")
     }
 }
