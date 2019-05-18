@@ -22,6 +22,7 @@ public class App {
         Reader reader = new Reader();
         reader
                 .read(args[0])
+                .filter(rate -> rate !=  CurrencyConversionRate.Factory.getINVALID())
                 .flatMap(rate -> alerters.stream().flatMap(alerter ->
                         alerter.process(new CurrencyConversionRate[]{rate}).stream()))
                 .forEach(alert -> System.out.println(writer.write(alert)));

@@ -20,4 +20,9 @@ data class RateMoveAlert(
         ) =
             RateMoveAlert(rate.timestamp, rate.currencyPair, alert, seconds)
     }
+
+    init {
+        assert(seconds == null || seconds > 0)
+        assert(currencyPair.length == 6)
+    }
 }

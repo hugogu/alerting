@@ -26,11 +26,11 @@ class RaiseOrFallAlerterTest {
 
     @Test
     fun `ever raising test`() {
-        (0L..10L)
+        (1L..10L)
             .map { rate.next(interval = it, rate = it * 1.0) }
             .forEach { alerter.process(it) }
 
-        assertThat(alerter.strike).isEqualTo(10)
+        assertThat(alerter.strike).isEqualTo(9)
     }
 
     @Test

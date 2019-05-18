@@ -1,5 +1,8 @@
 package com.airwallex.codechallenge.input
 
+import org.apache.commons.lang3.StringUtils.EMPTY
+import org.apache.commons.lang3.StringUtils.isEmpty
+import java.lang.Double.isNaN
 import java.time.Instant
 
 data class CurrencyConversionRate(
@@ -10,6 +13,18 @@ data class CurrencyConversionRate(
     companion object Factory {
         fun ofNow(currencyPair: String, rate: Double) =
             CurrencyConversionRate(Instant.now(), currencyPair, rate)
+
+        /**
+         * INVALID object represents INVALID input.
+         * TODO(Find a better choice)
+         * TODO(Alert when invalid input detected.)
+         */
+        val INVALID = CurrencyConversionRate(Instant.MIN, EMPTY, Double.NaN)
+    }
+
+    init {
+        assert(rate > 0.0 || isNaN(rate))
+        assert(currencyPair.length == 6 || isEmpty(currencyPair))
     }
 
     fun next(rate: Double = this.rate, interval: Long = 1L) =

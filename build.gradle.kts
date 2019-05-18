@@ -18,10 +18,13 @@ dependencies {
     implementation(kotlin("reflect"))
     implementation("com.fasterxml.jackson.module", "jackson-module-kotlin", "2.9+")
     implementation("com.fasterxml.jackson.datatype", "jackson-datatype-jsr310", "2.9+")
+    implementation("com.google.guava", "guava", "27.1-jre")
     implementation("org.apache.commons", "commons-collections4", "4.3")
+    implementation("org.apache.commons", "commons-lang3", "3.9")
     implementation("org.reflections", "reflections", "0.9.11")
 
     testImplementation("org.junit.jupiter", "junit-jupiter", "5.4.2")
+    testImplementation("org.junit.jupiter", "junit-jupiter-params", "5.4.2")
     testImplementation("org.assertj", "assertj-core", "3.11.1")
 }
 
