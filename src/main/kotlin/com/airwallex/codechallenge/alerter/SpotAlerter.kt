@@ -23,18 +23,15 @@ interface SpotAlerter<T> {
      * The implementation may assume that for each currency pair,
      * currency conversion rates are streamed at a constant rate of one per second
      */
-    fun process(currencyRate: CurrencyConversionRate) : RateMoveAlert?
+    fun process(currencyRate: CurrencyConversionRate): RateMoveAlert?
 
-    fun process(rates: Iterable<CurrencyConversionRate>) : Collection<RateMoveAlert> {
-        val result = ArrayList<RateMoveAlert>()
-        for (rate in rates) {
-            process(rate)?.let { result.add(it) }
+    fun process(rates: Iterable<CurrencyConversionRate>): Collection<RateMoveAlert> {
+        return rates.fold(ArrayList()) { list, rate ->
+            process(rate)?.let { list.add(it) }; list
         }
-
-        return result
     }
 
-    fun process(vararg rates: CurrencyConversionRate) : Collection<RateMoveAlert> {
+    fun process(vararg rates: CurrencyConversionRate): Collection<RateMoveAlert> {
         return process(rates.toList())
     }
 
