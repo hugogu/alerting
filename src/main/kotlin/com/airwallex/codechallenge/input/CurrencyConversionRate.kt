@@ -27,6 +27,9 @@ data class CurrencyConversionRate(
         assert(currencyPair.length == 6 || isEmpty(currencyPair))
     }
 
-    fun next(rate: Double = this.rate, interval: Long = 1L) =
-        CurrencyConversionRate(timestamp.plusSeconds(interval), currencyPair, rate)
+    fun next(rate: Double = this.rate, offset: Long = 1L) =
+        CurrencyConversionRate(timestamp.plusSeconds(offset), currencyPair, rate)
+
+    fun with(newPair: String) =
+        CurrencyConversionRate(timestamp, newPair, rate)
 }

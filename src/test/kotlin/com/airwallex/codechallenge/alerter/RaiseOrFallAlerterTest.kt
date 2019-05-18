@@ -1,5 +1,6 @@
 package com.airwallex.codechallenge.alerter
 
+import com.airwallex.codechallenge.common.CurrencyPairs.EURUSD
 import com.airwallex.codechallenge.input.CurrencyConversionRate
 import com.airwallex.codechallenge.output.RateMoveAlertType
 import org.assertj.core.api.Assertions.assertThat
@@ -9,9 +10,8 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 
 class RaiseOrFallAlerterTest {
-    private val testPair = "EURUSD"
     private lateinit var alerter: RaiseOrFallAlerter
-    private val rate = CurrencyConversionRate.ofNow(testPair, 1.0)
+    private val rate = CurrencyConversionRate.ofNow(EURUSD, 1.0)
 
     @BeforeEach
     fun setup() {
@@ -21,28 +21,28 @@ class RaiseOrFallAlerterTest {
     @Test
     fun `none raising nor failing test`() {
         (1L..10L)
-            .map { rate.next(interval = it) }
+            .map { rate.next(offset = it) }
             .forEach { alerter.process(it) }
 
-        assertThat(alerter.getStatusOf(testPair).strike).isEqualTo(0)
+        assertThat(alerter.getStatusOf(EURUSD).strike).isEqualTo(0)
     }
 
     @Test
     fun `ever raising test`() {
         (1L..10L)
-            .map { rate.next(interval = it, rate = it.toDouble()) }
+            .map { rate.next(offset = it, rate = it.toDouble()) }
             .forEach { alerter.process(it) }
 
-        assertThat(alerter.getStatusOf(testPair).strike).isEqualTo(9)
+        assertThat(alerter.getStatusOf(EURUSD).strike).isEqualTo(9)
     }
 
     @Test
     fun `flat in raising test`() {
         val alerts = hashMapOf(1L to 1.0, 2L to 2.0, 3L to 2.0, 4L to 3.0)
-            .map { rate.next(interval = it.key, rate = it.value) }
+            .map { rate.next(offset = it.key, rate = it.value) }
             .let { alerter.process(it) }
 
-        assertThat(alerter.getStatusOf(testPair).strike).isEqualTo(3)
+        assertThat(alerter.getStatusOf(EURUSD).strike).isEqualTo(3)
         assertThat(alerts).isNotEmpty
         assertThat(alerts).allMatch {
             it.alert == RateMoveAlertType.Raising && it.seconds == 3
@@ -52,10 +52,10 @@ class RaiseOrFallAlerterTest {
     @Test
     fun `v-turn-like raising test`() {
         val alerts = hashMapOf(1L to 4.0, 2L to 2.0, 3L to 3.0, 4L to 4.0)
-            .map { rate.next(interval = it.key, rate = it.value) }
+            .map { rate.next(offset = it.key, rate = it.value) }
             .let { alerter.process(it) }
 
-        assertThat(alerter.getStatusOf(testPair).strike).isEqualTo(2)
+        assertThat(alerter.getStatusOf(EURUSD).strike).isEqualTo(2)
         assertThat(alerts).isEmpty()
     }
 
@@ -77,10 +77,10 @@ class RaiseOrFallAlerterTest {
         alerter = RaiseOrFallAlerter(strikeThreshold = strikeBar, alertThreshold = alertBar)
 
         val alerts = (1L..dataLength)
-            .map { rate.next(interval = it, rate = it.toDouble()) }
+            .map { rate.next(offset = it, rate = it.toDouble()) }
             .let { alerter.process(it) }
 
-        assertThat(alerter.getStatusOf(testPair).strike).isEqualTo(strikeExpected)
+        assertThat(alerter.getStatusOf(EURUSD).strike).isEqualTo(strikeExpected)
         assertThat(alerts.size).isEqualTo(alertExpected)
     }
 }

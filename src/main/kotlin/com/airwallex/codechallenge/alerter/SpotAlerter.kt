@@ -13,8 +13,9 @@ interface SpotAlerter<T> {
      */
     val currencyPairsStatus: ConcurrentMap<String, T>
 
-    val doubleErrorTolerance: Double
-        get() = 0.0000001
+    companion object {
+        const val DOUBLE_ERROR = 0.0000001
+    }
 
     /**
      * Process a rate update and tell if there should an alert thrown out.

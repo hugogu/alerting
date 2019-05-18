@@ -20,13 +20,15 @@ class RaiseOrFallAlerter(
      * Represents the alerting threshold in seconds. Ensures only one alert will be sent out during this time range.
      */
     private val alertThreshold: Int = 60
-) : SpotAlerter<RaiseOrFallAlerter.RaisingAndFailingDetector> {
-    override val currencyPairsStatus: ConcurrentMap<String, RaisingAndFailingDetector> = ConcurrentHashMap()
+)
+    : SpotAlerter<RaiseOrFallAlerter.RaisingAndFailingDetector> {
 
     init {
         assert(alertThreshold > 0)
         assert(strikeThreshold > 0)
     }
+
+    override val currencyPairsStatus: ConcurrentMap<String, RaisingAndFailingDetector> = ConcurrentHashMap()
 
     override fun process(currencyRate: CurrencyConversionRate): RateMoveAlert? {
         val detector = getStatusOf(currencyRate.currencyPair) { RaisingAndFailingDetector() }
