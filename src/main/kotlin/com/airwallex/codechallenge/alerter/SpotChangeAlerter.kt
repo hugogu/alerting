@@ -15,6 +15,11 @@ class SpotChangeAlerter(
 ) : SpotAlerter<SpotChangeAlerter.CurrencyPairHistoryRates> {
     override val currencyPairsStatus: ConcurrentMap<String, CurrencyPairHistoryRates> = ConcurrentHashMap()
 
+    init {
+        assert(moveTolerance > 0.0)
+        assert(averageDurationInSeconds > 0)
+    }
+
     override fun process(currencyRate: CurrencyConversionRate): RateMoveAlert? {
         val rateHistory = getStatusOf(currencyRate.currencyPair) { CurrencyPairHistoryRates() }
         val averageRate = rateHistory.average

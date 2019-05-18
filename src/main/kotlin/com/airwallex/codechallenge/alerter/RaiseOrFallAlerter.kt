@@ -23,6 +23,11 @@ class RaiseOrFallAlerter(
 ) : SpotAlerter<RaiseOrFallAlerter.RaisingAndFailingDetector> {
     override val currencyPairsStatus: ConcurrentMap<String, RaisingAndFailingDetector> = ConcurrentHashMap()
 
+    init {
+        assert(alertThreshold > 0)
+        assert(strikeThreshold > 0)
+    }
+
     override fun process(currencyRate: CurrencyConversionRate): RateMoveAlert? {
         val detector = getStatusOf(currencyRate.currencyPair) { RaisingAndFailingDetector() }
 

@@ -60,7 +60,19 @@ class RaiseOrFallAlerterTest {
     }
 
     @ParameterizedTest
-    @CsvSource("1, 2, 4, 3, 1")
+    @CsvSource(
+        "1, 2, 3, 2, 1",
+        "1, 2, 4, 3, 1",
+        "1, 2, 5, 4, 2",
+        "1, 2, 6, 5, 2",
+        "1, 3, 4, 3, 1",
+        "1, 3, 5, 4, 1",
+        "1, 3, 6, 5, 1",
+        "1, 3, 7, 6, 2",
+        "3, 2, 3, 2, 0",
+        "3, 2, 4, 3, 0",
+        "3, 2, 5, 4, 1"
+        )
     fun `alert threshold test`(strikeBar: Int, alertBar: Int, dataLength: Int, strikeExpected: Int, alertExpected: Int) {
         alerter = RaiseOrFallAlerter(strikeThreshold = strikeBar, alertThreshold = alertBar)
 
