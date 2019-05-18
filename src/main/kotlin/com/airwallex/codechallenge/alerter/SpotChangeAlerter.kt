@@ -9,12 +9,14 @@ import java.util.concurrent.ConcurrentMap
 /**
  * When the spot rate for a currency pair changes by more than 10% from the 5 minute average for that currency pair
  */
-class SpotChangeAlerter(private val averageDurationInSeconds: Int = 300, private val moveTolerance: Double = 0.1) :
-    SpotAlerter {
-    private val currencyPairAverages: ConcurrentMap<String, CurrencyPairHistoryRates> = ConcurrentHashMap()
+class SpotChangeAlerter(
+    private val averageDurationInSeconds: Int = 300,
+    private val moveTolerance: Double = 0.1
+) : SpotAlerter<SpotChangeAlerter.CurrencyPairHistoryRates> {
+    override val currencyPairsStatus: ConcurrentMap<String, CurrencyPairHistoryRates> = ConcurrentHashMap()
 
     override fun process(currencyRate: CurrencyConversionRate): RateMoveAlert? {
-        val rateHistory = currencyPairAverages.computeIfAbsent(currencyRate.currencyPair) { CurrencyPairHistoryRates() }
+        val rateHistory = getStatusOf(currencyRate.currencyPair) { CurrencyPairHistoryRates() }
         val averageRate = rateHistory.average
         rateHistory.addRate(currencyRate.rate)
         val changeRate = Math.abs(averageRate - currencyRate.rate) / averageRate
@@ -28,7 +30,7 @@ class SpotChangeAlerter(private val averageDurationInSeconds: Int = 300, private
     /**
      * Maintains history rates and calculates average for a currency pair.
      */
-    private inner class CurrencyPairHistoryRates {
+    inner class CurrencyPairHistoryRates {
         private val historyRates: CircularFifoQueue<Double> = CircularFifoQueue(averageDurationInSeconds)
         internal var average: Double = 0.0
 

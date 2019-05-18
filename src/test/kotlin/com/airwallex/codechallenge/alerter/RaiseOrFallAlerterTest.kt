@@ -5,10 +5,13 @@ import com.airwallex.codechallenge.output.RateMoveAlertType
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 
 class RaiseOrFallAlerterTest {
+    private val testPair = "EURUSD"
     private lateinit var alerter: RaiseOrFallAlerter
-    private val rate = CurrencyConversionRate.ofNow("EURUSD", 1.0)
+    private val rate = CurrencyConversionRate.ofNow(testPair, 1.0)
 
     @BeforeEach
     fun setup() {
@@ -21,16 +24,16 @@ class RaiseOrFallAlerterTest {
             .map { rate.next(interval = it) }
             .forEach { alerter.process(it) }
 
-        assertThat(alerter.strike).isEqualTo(0)
+        assertThat(alerter.getStatusOf(testPair).strike).isEqualTo(0)
     }
 
     @Test
     fun `ever raising test`() {
         (1L..10L)
-            .map { rate.next(interval = it, rate = it * 1.0) }
+            .map { rate.next(interval = it, rate = it.toDouble()) }
             .forEach { alerter.process(it) }
 
-        assertThat(alerter.strike).isEqualTo(9)
+        assertThat(alerter.getStatusOf(testPair).strike).isEqualTo(9)
     }
 
     @Test
@@ -39,7 +42,7 @@ class RaiseOrFallAlerterTest {
             .map { rate.next(interval = it.key, rate = it.value) }
             .let { alerter.process(it) }
 
-        assertThat(alerter.strike).isEqualTo(3)
+        assertThat(alerter.getStatusOf(testPair).strike).isEqualTo(3)
         assertThat(alerts).isNotEmpty
         assertThat(alerts).allMatch {
             it.alert == RateMoveAlertType.Raising && it.seconds == 3
@@ -52,7 +55,20 @@ class RaiseOrFallAlerterTest {
             .map { rate.next(interval = it.key, rate = it.value) }
             .let { alerter.process(it) }
 
-        assertThat(alerter.strike).isEqualTo(2)
+        assertThat(alerter.getStatusOf(testPair).strike).isEqualTo(2)
         assertThat(alerts).isEmpty()
+    }
+
+    @ParameterizedTest
+    @CsvSource("1, 2, 4, 3, 1")
+    fun `alert threshold test`(strikeBar: Int, alertBar: Int, dataLength: Int, strikeExpected: Int, alertExpected: Int) {
+        alerter = RaiseOrFallAlerter(strikeThreshold = strikeBar, alertThreshold = alertBar)
+
+        val alerts = (1L..dataLength)
+            .map { rate.next(interval = it, rate = it.toDouble()) }
+            .let { alerter.process(it) }
+
+        assertThat(alerter.getStatusOf(testPair).strike).isEqualTo(strikeExpected)
+        assertThat(alerts.size).isEqualTo(alertExpected)
     }
 }
